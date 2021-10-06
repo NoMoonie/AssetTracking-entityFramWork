@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AssetTrackingEF.data\AssetTrackingEF.data.csproj" />
     <ProjectReference Include="..\AssetTrackingEF.domain\AssetTrackingEF.domain.csproj" />
+    <ProjectReference Include="..\AssetTrackingEF.input\AssetTrackingEF.input.csproj" />
   </ItemGroup>
 
   <ItemGroup>
