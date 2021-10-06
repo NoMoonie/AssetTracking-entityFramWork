@@ -25,7 +25,7 @@ namespace AssetTrackingEF.UI
         }
 
         private static void Addlaptop(){
-            var phone = new phone {Brand = "iphone"};
+            var phone = new laptop {Brand = "iphone"};
             _context.Assets.Add(phone);
             _context.SaveChanges();
         }
