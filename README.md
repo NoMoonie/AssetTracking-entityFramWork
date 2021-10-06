@@ -1,3 +1,3 @@
 # assignment for systemDeveleper 
 
-simple console application
+Asset tracking with entity Framework sql server
