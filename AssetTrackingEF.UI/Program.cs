@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AssetTrackingEF.data;
 using AssetTrackingEF.domain;
@@ -78,7 +79,15 @@ namespace AssetTrackingEF.UI
                     
                 }
                 if(InputArr[0] == "delete"){
-				
+                    var Assets = _context.Assets.ToList();
+                    bool IsInt = int.TryParse(InputArr[1], out int Id);
+                    if(!IsInt){Console.WriteLine(InputArr[1] + "is not a number"); continue;}
+                    IEnumerable<Asset> List = from Asset in Assets where Asset.Id == Id select Asset;
+                    foreach(var a in List){
+                        removeAsset(a);
+                    }
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Asset with id " + Id.ToString() + " removed");
                 }
 				if(InputArr[0] == "help"){
 					MainInput.ShowCommands();
@@ -97,12 +106,54 @@ namespace AssetTrackingEF.UI
             _context.SaveChanges();
         }
 
+        private static void removeAsset(Asset Asset){
+            _context.Assets.Remove(Asset);
+            _context.SaveChanges();
+        }
+
         private static void GetAssets(){
+            string[] Temp = new string[]{
+				"Id" ,"Brand", "Model","Office","Date","Price in USD","Local price"
+			};
+			foreach(string i in Temp){
+				Console.Write("| "+i.PadRight(15));
+			}
+			Console.WriteLine("\n|----------------|----------------|----------------|----------------|----------------|----------------|----------------");
             var Assets = _context.Assets.ToList();
             foreach(var Asset in Assets){
-                Console.WriteLine(Asset.Brand);
+                int Check = CheckDate(Asset.PurchaseDate);
+				if(Check == 1){
+					Console.ForegroundColor = ConsoleColor.Red;
+				}
+				else if(Check == -1){
+					Console.ForegroundColor = ConsoleColor.Yellow;
+				}else{
+					Console.ResetColor();
+				}
+                Console.WriteLine($"| {Asset.Id.ToString().PadRight(15)}| {Asset.Brand.PadRight(15)}| {Asset.Model.PadRight(15)}| {Asset.OfficeLocation.PadRight(15)}| {Asset.PurchaseDate.ToString("yyyy-MM-dd").PadRight(15)}| {Asset.PriceInUSD.ToString("0.00").PadRight(15)}| {Asset.LocalPrice.ToString("0.00").PadRight(15)}");
+				Console.ResetColor();
+                //Console.WriteLine(Asset.Brand);
             }
+            Console.WriteLine("|----------------|----------------|----------------|----------------|----------------|----------------|----------------");
+			Console.WriteLine("");
         }
+        static int CheckDate(DateTime date){
+			//get current date 
+			DateTime CurrentDate = DateTime.Today;
+			int m1 = (CurrentDate.Month - date.Month);
+			int m2 = (CurrentDate.Year - date.Year) * 12;
+			int months = m1 + m2;
+			if(33 <= months){
+				return 1;
+			}
+			else if(30 <= months){
+				return -1;
+			}
+			else{
+				return 0;
+			}
+		}
+
         static double GetRate(string currency){
 
 			if(currency.ToLower().Trim() == "sweden"){

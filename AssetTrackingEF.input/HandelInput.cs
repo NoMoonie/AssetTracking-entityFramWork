@@ -34,7 +34,7 @@ namespace AssetTrackingEF.input{
 			Console.WriteLine("Create: create new asset | <type:string> | ex: create phone");
 			Console.WriteLine("Read: read");
 			Console.WriteLine("Update: update asset");
-			Console.WriteLine("Delete: delete asset");
+			Console.WriteLine("Delete: delete asset | <id:int> | ex: delete 3");
 			Console.WriteLine("Help: shows this list");
 			
 			Console.WriteLine("");
