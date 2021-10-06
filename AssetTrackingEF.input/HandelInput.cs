@@ -1,17 +1,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace AssetTrackerEF.input{
+namespace AssetTrackingEF.input{
 
     public class HandelInput{
 		private int index = 0;
-		private string[] CommandArr = new string[5];
+		private string[] CommandArr = new string[6];
 		private string[] PropListArr = new string[7];
 		public HandelInput(){
 			CommandArr[index++] = "q";
-			CommandArr[index++] = "addphone";
-			CommandArr[index++] = "addlaptop";
-			CommandArr[index++] = "list";
+			CommandArr[index++] = "create";
+			CommandArr[index++] = "read";
+			CommandArr[index++] = "update";
+			CommandArr[index++] = "delete";
 			CommandArr[index++] = "help";
 			index = 0; 
 			PropListArr[index++] = "brand";
@@ -23,21 +24,24 @@ namespace AssetTrackerEF.input{
 			PropListArr[index++] = "price in USD";
 		}
 		public void ShowCommands(){
-			Console.WriteLine("offices available:");
+			Console.WriteLine("Offices available:");
 			Console.WriteLine("Sweden, Spain, USA\n");
+            
+            Console.WriteLine("Assets available:");
+			Console.WriteLine("phone, laptop\n");
 
 			Console.WriteLine("Commands:");
-			Console.WriteLine("AddPhone: adds Phone asset");
-			Console.WriteLine("AddLaptop: adds Laptop asset");
-			Console.WriteLine("Q: Quits the program");
-			Console.WriteLine("List: lists out assets enterd");
-			Console.WriteLine("Help: list out commands");
+			Console.WriteLine("Create: create new asset | <type:string> | ex: create phone");
+			Console.WriteLine("Read: read");
+			Console.WriteLine("Update: update asset");
+			Console.WriteLine("Delete: delete asset");
+			Console.WriteLine("Help: shows this list");
 			
 			Console.WriteLine("");
 		}
 		public string GetUserInput(){
 			//ShowCommands();
-			Console.Write(">> ");
+			Console.Write("$> ");
 			string Input = Console.ReadLine();
 			string TempInput = CheckInput(Input);
 			return TempInput;
@@ -56,9 +60,10 @@ namespace AssetTrackerEF.input{
 		}
 		
 		private string CheckInput(String Input){
+            string[] InputArr = Input.Split(" ");
 			foreach(string i in CommandArr){
-				if(i == Input.ToLower().Trim()){
-					return i;
+				if(i == InputArr[0].ToLower().Trim()){
+					return Input;
 				}
 			}
 			return null;
