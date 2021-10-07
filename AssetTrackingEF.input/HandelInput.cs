@@ -33,7 +33,7 @@ namespace AssetTrackingEF.input{
 			Console.WriteLine("Commands:");
 			Console.WriteLine("Create: create new asset | <type:string> | ex: create phone");
 			Console.WriteLine("Read: read");
-			Console.WriteLine("Update: update asset");
+			Console.WriteLine("Update: update asset | <id:int> <prop:string> | ex: update 2 brand");
 			Console.WriteLine("Delete: delete asset | <id:int> | ex: delete 3");
 			Console.WriteLine("Help: shows this list");
 			
@@ -43,7 +43,7 @@ namespace AssetTrackingEF.input{
 			//ShowCommands();
 			Console.Write("$> ");
 			string Input = Console.ReadLine();
-			string TempInput = CheckInput(Input);
+			string TempInput = CheckInput(Input, CommandArr);
 			return TempInput;
 		}
 
@@ -59,9 +59,9 @@ namespace AssetTrackingEF.input{
 			return ReturnArr;
 		}
 		
-		private string CheckInput(String Input){
+		public string CheckInput(String Input, string[] arr){
             string[] InputArr = Input.Split(" ");
-			foreach(string i in CommandArr){
+			foreach(string i in arr){
 				if(i == InputArr[0].ToLower().Trim()){
 					return Input;
 				}
