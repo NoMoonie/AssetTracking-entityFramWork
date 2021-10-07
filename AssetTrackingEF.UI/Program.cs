@@ -60,16 +60,45 @@ namespace AssetTrackingEF.UI
                                 Addphone(NewPhone);
                                 //MainList.AddAsset(NewPhone);
                                 Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("Asset Added");
+                                Console.WriteLine("Phone Added");
                             }catch(Exception){
                                 if(ShowErr(Month, Day)){continue;}
                             }
                         }
-                        //Addphone();
                     }
                     if(InputArr[1] == "laptop"){
-                        Console.WriteLine("laptop");
-                        //Addlaptop();
+                        string[] TempArr = MainInput.GetAssetFromUser();
+                        if(TempArr != null){
+                            bool[] IsTemp = new bool[4];
+                            IsTemp[0] = int.TryParse(TempArr[3], out int Year);
+                            IsTemp[1] = int.TryParse(TempArr[4], out int Month);
+                            IsTemp[2] = int.TryParse(TempArr[5], out int Day);
+                            IsTemp[3] = double.TryParse(TempArr[6], out double PriceUSD);
+                            foreach(bool i in IsTemp){
+                                if(!i){
+                                    continue;
+                                }
+                            }
+                            double Rate = GetRate(TempArr[2]);
+                            double PriceInLocal = GetExchangeRate(PriceUSD, Rate);
+                            //convert price to local price
+                            try{
+                                laptop NewPhone = new laptop(){
+                                    Brand = TempArr[0],
+                                    Model = TempArr[1],
+                                    OfficeLocation = TempArr[2],
+                                    PurchaseDate = new DateTime(Year, Month, Day),
+                                    PriceInUSD = PriceUSD,
+                                    LocalPrice = PriceInLocal,
+                                };
+                                Addlaptop(NewPhone);
+                                //MainList.AddAsset(NewPhone);
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.WriteLine("Laptop Added");
+                            }catch(Exception){
+                                if(ShowErr(Month, Day)){continue;}
+                            }
+                        }
                     }
                 }
                 if(InputArr[0] == "read"){
@@ -92,6 +121,7 @@ namespace AssetTrackingEF.UI
                         string TempStr = Asset.Brand; 
                         Asset.Brand = Value;
                         _context.SaveChanges();
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine(TempStr + " -> " + Value);
                     }
                     if(InputArr[2].ToLower() == "model"){
@@ -100,6 +130,7 @@ namespace AssetTrackingEF.UI
                         string TempStr = Asset.Model; 
                         Asset.Model = Value;
                         _context.SaveChanges();
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine(TempStr + " -> " + Value);
                     }
                     if(InputArr[2].ToLower() == "office"){
@@ -108,6 +139,7 @@ namespace AssetTrackingEF.UI
                         string TempStr = Asset.OfficeLocation; 
                         Asset.OfficeLocation = Value;
                         _context.SaveChanges();
+                        Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine(TempStr + " -> " + Value);
                     }
                     if(InputArr[2].ToLower() == "date"){
@@ -123,18 +155,28 @@ namespace AssetTrackingEF.UI
                             DateTime TempStr = Asset.PurchaseDate;
                             Asset.PurchaseDate = newDate;
                             _context.SaveChanges();
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine(TempStr.ToString("yyyy-MM-dd") + " -> " + newDate.ToString("yyyy-MM-dd"));
                         }catch(Exception){
                             if(ShowErr(Month, Day)){continue;}
                         }
                     }
                     if(InputArr[2].ToLower() == "price"){
-                        Console.Write("new brand: ");
+                        Console.Write("new Price: ");
                         string Brand = Console.ReadLine();
-                        string TempStr = Asset.Brand; 
-                        Asset.Brand = Brand;
+                        bool isDouble = double.TryParse(Brand, out double Value);
+                        
+                        double Rate = GetRate(Asset.OfficeLocation);
+                        double PriceInLocal = GetExchangeRate(Value, Rate);
+                        
+                        double TempStr = Asset.PriceInUSD;
+                        double TempStr2 = Asset.LocalPrice;
+                        Asset.PriceInUSD = Value;
+                        Asset.LocalPrice = PriceInLocal;
                         _context.SaveChanges();
-                        Console.WriteLine(TempStr + " -> " + Brand);
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.WriteLine(TempStr.ToString("0.00") + " -> " + Value.ToString("0.00"));
+                        Console.WriteLine(TempStr2.ToString("0.00") + " -> " + PriceInLocal.ToString("0.00"));
                     }
                 }
                 if(InputArr[0] == "delete"){
@@ -159,22 +201,18 @@ namespace AssetTrackingEF.UI
 			Console.WriteLine("Error");
 			return false;
 		}
-
         private static void Addphone(phone Phone){
             _context.Assets.Add(Phone);
             _context.SaveChanges();
         }
-
         private static void Addlaptop(laptop Laptop){
             _context.Assets.Add(Laptop);
             _context.SaveChanges();
         }
-
         private static void removeAsset(Asset Asset){
             _context.Assets.Remove(Asset);
             _context.SaveChanges();
         }
-
         private static void GetAssets(){
             string[] Temp = new string[]{
 				"Id" ,"Brand", "Model","Office","Date","Price in USD","Local price"
@@ -183,7 +221,7 @@ namespace AssetTrackingEF.UI
 				Console.Write("| "+i.PadRight(15));
 			}
 			Console.WriteLine("\n|----------------|----------------|----------------|----------------|----------------|----------------|----------------");
-            var Assets = _context.Assets.ToList();
+            var Assets = _context.Assets.OrderByDescending(Asset => Asset.OfficeLocation).ThenBy(Asset => Asset.PriceInUSD).ToList();
             foreach(var Asset in Assets){
                 int Check = CheckDate(Asset.PurchaseDate);
 				if(Check == 1){
