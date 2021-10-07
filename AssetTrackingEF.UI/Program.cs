@@ -17,7 +17,6 @@ namespace AssetTrackingEF.UI
             _context.Database.EnsureCreated();
             HandelInput MainInput = new HandelInput();
             
-
             MainInput.ShowCommands();
             while(true){
                 Console.ResetColor();
@@ -30,7 +29,6 @@ namespace AssetTrackingEF.UI
 				}
                 string[] InputArr = Input.Split(" ");
                 if(InputArr[0] == "q"){break;}
-                
                 if(InputArr[0] == "create"){
                     if(InputArr[1] == "phone"){
                         string[] TempArr = MainInput.GetAssetFromUser();
@@ -190,8 +188,30 @@ namespace AssetTrackingEF.UI
 				if(InputArr[0] == "help"){
 					MainInput.ShowCommands();
 				}
+                if(InputArr[0] == "report"){
+                    ShowReport();
+                }
 
             }
+        }
+
+        static void ShowReport(){
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Statistics");
+            Console.WriteLine("----------");
+            var Assets = _context.Assets.ToList();
+            double TotalPirce = 0;
+            int count = 0;
+            foreach(var Asset in Assets){
+                TotalPirce += Asset.PriceInUSD;
+                count++;
+            }
+            
+            double Average = TotalPirce/count;
+            Console.WriteLine("Total assets: " + count.ToString());
+            Console.WriteLine("Total price in USD: " + TotalPirce.ToString("0.00"));
+            Console.WriteLine("Average price in USD: " + Average.ToString("0.00"));
+            Console.WriteLine("");
         }
         static bool ShowErr(double Month, double Day){
 			Console.ForegroundColor = ConsoleColor.Red;
@@ -255,7 +275,6 @@ namespace AssetTrackingEF.UI
 				return 0;
 			}
 		}
-
         static double GetRate(string currency){
 
 			if(currency.ToLower().Trim() == "sweden"){
@@ -266,7 +285,6 @@ namespace AssetTrackingEF.UI
 			}
 			return 1;
 		}
-
 		static double GetExchangeRate(double Amount, double Rate){
 			return Amount * Rate;
 		}
