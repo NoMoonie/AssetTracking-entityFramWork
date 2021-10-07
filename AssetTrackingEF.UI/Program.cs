@@ -62,7 +62,7 @@ namespace AssetTrackingEF.UI
                                 Console.ForegroundColor = ConsoleColor.Green;
                                 Console.WriteLine("Asset Added");
                             }catch(Exception){
-                                //if(ShowErr(Month, Day)){continue;}
+                                if(ShowErr(Month, Day)){continue;}
                             }
                         }
                         //Addphone();
@@ -76,16 +76,72 @@ namespace AssetTrackingEF.UI
                     GetAssets();
                 }
                 if(InputArr[0] == "update"){
-                    
-                }
-                if(InputArr[0] == "delete"){
-                    var Assets = _context.Assets.ToList();
                     bool IsInt = int.TryParse(InputArr[1], out int Id);
                     if(!IsInt){Console.WriteLine(InputArr[1] + "is not a number"); continue;}
-                    IEnumerable<Asset> List = from Asset in Assets where Asset.Id == Id select Asset;
-                    foreach(var a in List){
-                        removeAsset(a);
+                    var Asset = _context.Assets.Where(a => a.Id == Id).FirstOrDefault();
+                    string[] Temp = new string[]{
+                        "brand", "model","office","date","price"
+                    };
+                    string Res = MainInput.CheckInput(InputArr[2], Temp);
+                    if(Res == null){
+                        Console.WriteLine(InputArr[2]+": unknown prop");
                     }
+                    if(InputArr[2].ToLower() == "brand"){
+                        Console.Write("new Brand: ");
+                        string Value = Console.ReadLine();
+                        string TempStr = Asset.Brand; 
+                        Asset.Brand = Value;
+                        _context.SaveChanges();
+                        Console.WriteLine(TempStr + " -> " + Value);
+                    }
+                    if(InputArr[2].ToLower() == "model"){
+                        Console.Write("new Model: ");
+                        string Value = Console.ReadLine();
+                        string TempStr = Asset.Model; 
+                        Asset.Model = Value;
+                        _context.SaveChanges();
+                        Console.WriteLine(TempStr + " -> " + Value);
+                    }
+                    if(InputArr[2].ToLower() == "office"){
+                        Console.Write("new Office: ");
+                        string Value = Console.ReadLine();
+                        string TempStr = Asset.OfficeLocation; 
+                        Asset.OfficeLocation = Value;
+                        _context.SaveChanges();
+                        Console.WriteLine(TempStr + " -> " + Value);
+                    }
+                    if(InputArr[2].ToLower() == "date"){
+                        Console.WriteLine("Format: yyyy mm dd");
+                        Console.Write("new Date: ");
+                        string Brand = Console.ReadLine();
+                        string[] TempSplit = Brand.Split(" ");
+                        bool IsInt1 = int.TryParse(TempSplit[0], out int Year);
+                        bool IsInt2 = int.TryParse(TempSplit[1], out int Month);
+                        bool IsInt3 = int.TryParse(TempSplit[2], out int Day);
+                        try{
+                            DateTime newDate = new DateTime(Year, Month, Day);
+                            DateTime TempStr = Asset.PurchaseDate;
+                            Asset.PurchaseDate = newDate;
+                            _context.SaveChanges();
+                            Console.WriteLine(TempStr.ToString("yyyy-MM-dd") + " -> " + newDate.ToString("yyyy-MM-dd"));
+                        }catch(Exception){
+                            if(ShowErr(Month, Day)){continue;}
+                        }
+                    }
+                    if(InputArr[2].ToLower() == "price"){
+                        Console.Write("new brand: ");
+                        string Brand = Console.ReadLine();
+                        string TempStr = Asset.Brand; 
+                        Asset.Brand = Brand;
+                        _context.SaveChanges();
+                        Console.WriteLine(TempStr + " -> " + Brand);
+                    }
+                }
+                if(InputArr[0] == "delete"){
+                    bool IsInt = int.TryParse(InputArr[1], out int Id);
+                    if(!IsInt){Console.WriteLine(InputArr[1] + "is not a number"); continue;}
+                    var Asset = _context.Assets.Where(a => a.Id == Id).FirstOrDefault();
+                    removeAsset(Asset);
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Asset with id " + Id.ToString() + " removed");
                 }
@@ -95,6 +151,14 @@ namespace AssetTrackingEF.UI
 
             }
         }
+        static bool ShowErr(double Month, double Day){
+			Console.ForegroundColor = ConsoleColor.Red;
+			if(Month < 0 || Day < 0){Console.WriteLine("Can't be negitive");return true;}
+			if(Month > 12){Console.WriteLine("There is only 12 months in a year");return true;}
+			if(Day > 31){Console.WriteLine("There is max 30-31 days in a month");return true;}
+			Console.WriteLine("Error");
+			return false;
+		}
 
         private static void Addphone(phone Phone){
             _context.Assets.Add(Phone);
