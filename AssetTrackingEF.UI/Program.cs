@@ -14,7 +14,7 @@ namespace AssetTrackingEF.UI
         private static AssetContext _context = new AssetContext();
         static void Main(string[] args)
         {
-            _context.Database.EnsureCreated();
+            //_context.Database.EnsureCreated();
             HandelInput MainInput = new HandelInput();
             
             MainInput.ShowCommands();
