@@ -135,7 +135,16 @@ namespace AssetTrackingEF.UI
                         Console.Write("new Office: ");
                         string Value = Console.ReadLine();
                         string TempStr = Asset.OfficeLocation; 
+
+                        //change the local curency
+                        double Price = Asset.PriceInUSD;
+                        
+                        double Rate = GetRate(Value);
+                        double PriceInLocal = GetExchangeRate(Price, Rate);
+                        
                         Asset.OfficeLocation = Value;
+                        Asset.LocalPrice = PriceInLocal;
+                        
                         _context.SaveChanges();
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine(TempStr + " -> " + Value);
